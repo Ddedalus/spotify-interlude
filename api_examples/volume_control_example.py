@@ -16,9 +16,7 @@ https://docs.microsoft.com/en-us/windows/win32/api/audiopolicy/nn-audiopolicy-ia
 """
 import time
 
-import win32api  # needs the pywin32 module
 from comtypes import COMError
-
 from pycaw.callbacks import AudioSessionEvents
 from pycaw.utils import AudioUtilities
 

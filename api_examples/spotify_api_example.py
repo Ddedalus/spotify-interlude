@@ -1,8 +1,8 @@
-from numpy import choose
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
 import json
 import time
+
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
 
 
 def strip_markets(response):
@@ -28,7 +28,7 @@ def print_playback(playback):
 
 
 def get_device():
-    """ Get currently active device or the Surface laptop"""
+    """Get currently active device or the Surface laptop"""
     devices = sp.devices()["devices"]
     preferences = [d for d in devices if d["is_active"]] + [
         d for d in devices if d["name"] == "SURFACE"
@@ -62,4 +62,3 @@ if __name__ == "__main__":
     time.sleep(0.5)
     playback = sp.current_playback()
     print_playback(playback)
-

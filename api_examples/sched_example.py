@@ -1,4 +1,5 @@
-import sched, time
+import sched
+import time
 
 s = sched.scheduler()
 # https://docs.python.org/3.8/library/sched.html
