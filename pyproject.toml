@@ -10,6 +10,7 @@ python = "^3.8"
 spotipy = "^2.20.0"
 pycaw = "^20220416"
 typer = "^0.6.1"
+pydantic = "^1.9.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"
