@@ -16,6 +16,7 @@ class PauseSpotifyCallback(AudioStateCallback):
     """Callback to put Spotify playback on hold when audio sessions are active"""
 
     active_session_count = 0
+    warmup_duration: float = 2.0
     scheduler: sched.scheduler
 
     def __init__(self, session: AudioSession) -> None:
@@ -57,23 +58,15 @@ class PauseSpotifyCallback(AudioStateCallback):
         self.client._get_playback()
         if self.client.state == SpotifyState.hold:
             self.client.warmup()
-            self.scheduler.enter(2, 10, self.client.resume_playback)
+            self.scheduler.enter(self.warmup_duration, 10, self.client.resume_playback)
         else:
             print(f"Tried to activate playback in state {self.client.state}")
 
 
-def manage_sessions_task(scheduler, sessions, interval: float):
+def manage_sessions_task(
+    scheduler: sched.scheduler, interval: float, sessions: Dict[int, AudioSession] = {}
+):
     """Periodic task updating a collection of active audio sessions."""
     sessions = discover_foreground_sessions(sessions, PauseSpotifyCallback)
-    scheduler.enter(interval, 5, manage_sessions_task, (scheduler, sessions, interval))
-
-
-if __name__ == "__main__":
-    sessions: Dict[int, AudioSession] = {}
-    scheduler.enter(0, 5, manage_sessions_task, (scheduler, sessions))
-    try:
-        scheduler.run(blocking=True)
-    except KeyboardInterrupt:
-        print("Keyboard Interrupt, cleaning up...")
-    finally:
-        unregister_callbacks(sessions.values())
+    scheduler.enter(interval, 5, manage_sessions_task, (scheduler, interval, sessions))
+    return sessions

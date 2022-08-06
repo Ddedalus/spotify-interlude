@@ -1,20 +1,19 @@
 """ Console entrypoint for the package. """
 from interlude.core import manage_sessions_task, PauseSpotifyCallback
-from interlude.audio_session import unregister_callbacks, AudioSession
+from interlude.audio_session import unregister_callbacks
 import typer
 import sched
-from typing import Dict
 
 app = typer.Typer()
 
 
 @app.command()
-def main(session_refresh_interval: int = 5):
-    sessions: Dict[int, AudioSession] = {}
+def main(session_refresh_interval: float = 5.0, warmup_duration: float = 2.0):
     scheduler = sched.scheduler()
     PauseSpotifyCallback.scheduler = scheduler
+    PauseSpotifyCallback.warmup_duration = warmup_duration
 
-    manage_sessions_task(scheduler, sessions, session_refresh_interval)
+    sessions = manage_sessions_task(scheduler, session_refresh_interval)
     try:
         scheduler.run(blocking=True)
     except KeyboardInterrupt:
