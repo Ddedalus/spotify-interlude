@@ -8,12 +8,14 @@ class SpotifyState(str, Enum):
     """State of the Spotify player.
     playing: the music is playing
     hold: music was paused because of foreground sound and can be resumed
+    warmup: the foreground sound is over, player will resume after a delay
     paused: music was paused by the user
     off: no client capable of playing music found
     """
 
     playing = "playing"
     hold = "hold"
+    warmup = "warmup"
     paused = "paused"
     off = "off"
 
@@ -29,9 +31,12 @@ class SpotifyClient:
         self.sp = spotipy.Spotify(auth_manager=auth_manager)
         self.state: SpotifyState = SpotifyState.off
 
-    def put_on_hold(self):
+    def hold_playback(self):
         """Pause Spotify playback because of foreground audio."""
-        assert self.state == SpotifyState.playing, "Can only hold from playing!"
+        assert self.state in [
+            SpotifyState.playing,
+            SpotifyState.warmup,
+        ], "Can only hold from playing!"
         try:
             device = self._get_device()
         except:
@@ -40,9 +45,15 @@ class SpotifyClient:
         self.sp.pause_playback(device_id=device["id"])
         self.state = SpotifyState.hold
 
-    def resume_from_hold(self):
+    def warmup(self):
+        """Start the warmup period"""
+        self.state = SpotifyState.warmup
+
+    def resume_playback(self):
         """Resume Spotify playback once foreground audio finishes."""
-        assert self.state == SpotifyState.hold, "Can only resume from hold!"
+        assert (
+            self.state == SpotifyState.warmup
+        ), "Can only resume after a warmup period!"
         try:
             device = self._get_device()
         except ValueError:
@@ -80,11 +91,10 @@ class SpotifyClient:
         """Refresh the state of Spotify playback and update the state"""
         playback = self.sp.current_playback()
         if playback and playback["is_playing"]:
+            # Can't deny the facts!
             self.state = SpotifyState.playing
         elif self.state == SpotifyState.playing:
             # User manually pressed the pause button
             self.state = SpotifyState.paused
-        # else the state doesn't change:
-        # hold > hold
-        # off > off
+        # The state doesn't change if it's hold, warmup or off
         return playback

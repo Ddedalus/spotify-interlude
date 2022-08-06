@@ -32,17 +32,14 @@ class PauseSpotifyCallback(AudioStateCallback):
         # check if we should put the player on hold
         self.client._get_playback()  # Refresh player state in case user paused
         if self.client.state == SpotifyState.playing:
-            self.client.put_on_hold()
+            self.client.hold_playback()
 
     def on_inactive(self):
         self.active_session_count -= 1
         if self.active_session_count > 0:
             return  # there is still foreground sound, nothing to do
 
-        # Foreground sound ceased, resume playback if it was on hold
-        self.client._get_playback()
-        if self.client.state == SpotifyState.hold:
-            self.client.resume_from_hold()
+        self.activate_playback()
 
     def on_expired(self):
         if self.state == "Active":
@@ -50,12 +47,14 @@ class PauseSpotifyCallback(AudioStateCallback):
 
         if self.active_session_count > 0:
             return  # there is still foreground sound, nothing to do
+        self.activate_playback()
 
+    def activate_playback(self):
         # Foreground sound ceased, resume playback if it was on hold
         self.client._get_playback()
-        if self.client.state == SpotifyState.hold:
-            self.client.resume_from_hold()
-        # TODO: avoid code duplication
+        if self.client.state in [SpotifyState.hold, SpotifyState.warmup]:
+            self.client.warmup()
+            self.client.resume_playback()
 
 
 if __name__ == "__main__":
