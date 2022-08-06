@@ -11,14 +11,12 @@ from interlude.audio_session import (
 )
 from interlude.spotify import SpotifyClient, SpotifyState
 
-scheduler = sched.scheduler()
-
 
 class PauseSpotifyCallback(AudioStateCallback):
     """Callback to put Spotify playback on hold when audio sessions are active"""
 
     active_session_count = 0
-    scheduler: sched.scheduler = scheduler
+    scheduler: sched.scheduler
 
     def __init__(self, session: AudioSession) -> None:
         super().__init__(session)
@@ -64,10 +62,10 @@ class PauseSpotifyCallback(AudioStateCallback):
             print(f"Tried to activate playback in state {self.client.state}")
 
 
-def manage_sessions_task(scheduler, sessions):
+def manage_sessions_task(scheduler, sessions, interval: float):
     """Periodic task updating a collection of active audio sessions."""
     sessions = discover_foreground_sessions(sessions, PauseSpotifyCallback)
-    scheduler.enter(3, 5, manage_sessions_task, (scheduler, sessions))
+    scheduler.enter(interval, 5, manage_sessions_task, (scheduler, sessions, interval))
 
 
 if __name__ == "__main__":
