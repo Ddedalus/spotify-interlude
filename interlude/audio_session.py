@@ -12,7 +12,7 @@ class AudioStateCallback(AudioSessionEvents):
     It registers itself automatically with the session passed to the constructor.
     """
 
-    def __init__(self, session: AudioSession) -> None:
+    def __init__(self, session: AudioSession, **kwargs) -> None:
         super().__init__()
         assert session.Process
         self.session = session
@@ -20,6 +20,8 @@ class AudioStateCallback(AudioSessionEvents):
         self.state: str = self.AudioSessionState[session.State]
         session.register_notification(self)
         print(f"Registered callback for {self.process_name}")
+        if kwargs:
+            print(f"Unused named arguments: {kwargs}")
 
     def on_state_changed(self, new_state, new_state_id):
         """Expose individual state changes as interface functions"""
@@ -53,19 +55,18 @@ def unregister_callbacks(sessions: Iterable[AudioSession]):
 
 
 def discover_foreground_sessions(
-    scheduler: sched.scheduler,
     sessions: Dict[int, AudioSession],
     Callback: Type[AudioStateCallback],
     foreground_process_names: List[str] = ["chrome.exe", "firefox.exe"],
-):
-    """Find all audio sessions of foreground registered apps."""
+    **kwargs,
+) -> Dict[int, AudioSession]:
+    """Find all audio sessions of foreground registered apps.
+    Kwargs are passed to the Callback if new audio session is discovered."""
     try:
         all_discovered: List[AudioSession] = AudioUtilities.GetAllSessions()
     except COMError:
         print("No audio output device registered!")
-        scheduler.enter(3, 5, discover_foreground_sessions, (scheduler, sessions))
-        return
-
+        return {}
     discovered_sessions = {
         s.ProcessId: s
         for s in all_discovered
@@ -80,8 +81,7 @@ def discover_foreground_sessions(
 
     new = {pid: s for pid, s in discovered_sessions.items() if pid not in sessions}
     for pid, session in new.items():
-        Callback(session)
+        Callback(session=session, **kwargs)
         sessions[pid] = session
 
-    # check again in a moment
-    scheduler.enter(3, 5, discover_foreground_sessions, (scheduler, sessions, Callback))
+    return sessions

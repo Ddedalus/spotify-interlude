@@ -4,9 +4,11 @@ from typing import Dict
 
 from pycaw.utils import AudioSession
 
-from interlude.audio_session import (AudioStateCallback,
-                                     discover_foreground_sessions,
-                                     unregister_callbacks)
+from interlude.audio_session import (
+    AudioStateCallback,
+    discover_foreground_sessions,
+    unregister_callbacks,
+)
 from interlude.spotify import SpotifyClient, SpotifyState
 
 sessions: Dict[int, AudioSession] = {}
@@ -63,14 +65,15 @@ class PauseSpotifyCallback(AudioStateCallback):
             print(f"Tried to activate playback in state {self.client.state}")
 
 
+def manage_sessions_task(scheduler, sessions):
+    """Periodic task updating a collection of active audio sessions."""
+    sessions = discover_foreground_sessions(sessions, PauseSpotifyCallback)
+    scheduler.enter(3, 5, manage_sessions_task, (scheduler, sessions))
+
+
 if __name__ == "__main__":
+    scheduler.enter(0, 5, manage_sessions_task, (scheduler, sessions))
     try:
-        scheduler.enter(
-            0,
-            5,
-            discover_foreground_sessions,
-            (scheduler, sessions, PauseSpotifyCallback),
-        )
         scheduler.run(blocking=True)
     except KeyboardInterrupt:
         print("Keyboard Interrupt, cleaning up...")
