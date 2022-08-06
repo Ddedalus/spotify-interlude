@@ -83,7 +83,5 @@ def discover_foreground_sessions(
         Callback(session)
         sessions[pid] = session
 
-    print(f"Tracking {len(sessions)} audio sessions")
-
     # check again in a moment
     scheduler.enter(3, 5, discover_foreground_sessions, (scheduler, sessions, Callback))

@@ -35,6 +35,7 @@ class PauseSpotifyCallback(AudioStateCallback):
         # Delete all pending warmup tasks from the scheduler
         for event in self.scheduler.queue:
             if event.action == self.client.resume_playback:
+                print("Deleting a warmp event")
                 self.scheduler.cancel(event)
 
     def on_inactive(self):

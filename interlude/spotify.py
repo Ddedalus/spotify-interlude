@@ -33,10 +33,12 @@ class SpotifyClient:
 
     def hold_playback(self):
         """Pause Spotify playback because of foreground audio."""
-        assert self.state in [
-            SpotifyState.playing,
-            SpotifyState.warmup,
-        ], "Can only hold from playing!"
+        if self.state == SpotifyState.warmup:
+            self.state = SpotifyState.hold
+            return
+        assert (
+            self.state == SpotifyState.playing
+        ), "Can only hold from playing or warmup"
         try:
             device = self._get_device()
         except:
@@ -44,10 +46,12 @@ class SpotifyClient:
             return
         self.sp.pause_playback(device_id=device["id"])
         self.state = SpotifyState.hold
+        print("Playback on hold")
 
     def warmup(self):
         """Start the warmup period"""
         self.state = SpotifyState.warmup
+        print("Warmup...")
 
     def resume_playback(self):
         """Resume Spotify playback once foreground audio finishes."""
@@ -63,6 +67,7 @@ class SpotifyClient:
 
         self.sp.start_playback(device_id=device["id"])
         self.state = SpotifyState.playing
+        print("Resumed playback")
 
     def _get_device(self) -> Dict[str, Any]:
         """Get currently active device or the Surface laptop"""
