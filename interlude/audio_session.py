@@ -1,11 +1,10 @@
-from ast import Call
-from pycaw.callbacks import AudioSessionEvents
-from typing import Dict, List, Iterable, Type
-from pycaw.utils import AudioSession, AudioUtilities
-from comtypes import COMError
+""" Customise the pycaw AudioSession event callback, logic to keep track of audio sessions"""
 import sched
+from typing import Dict, Iterable, List, Type
 
-foreground_process_names = ["chrome.exe", "firefox.exe"]
+from comtypes import COMError
+from pycaw.callbacks import AudioSessionEvents
+from pycaw.utils import AudioSession, AudioUtilities
 
 
 class AudioStateCallback(AudioSessionEvents):
@@ -57,6 +56,7 @@ def discover_foreground_sessions(
     scheduler: sched.scheduler,
     sessions: Dict[int, AudioSession],
     Callback: Type[AudioStateCallback],
+    foreground_process_names: List[str] = ["chrome.exe", "firefox.exe"],
 ):
     """Find all audio sessions of foreground registered apps."""
     try:

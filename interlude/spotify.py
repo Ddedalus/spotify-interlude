@@ -1,7 +1,9 @@
+""" Deal with Spotify API authentication and define Spotify state management."""
 from enum import Enum
+from typing import Any, Dict, Optional
+
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from typing import Dict, Any, Optional
 
 
 class SpotifyState(str, Enum):

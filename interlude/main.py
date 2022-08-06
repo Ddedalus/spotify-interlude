@@ -1,22 +1,22 @@
+""" Core logic to trigger Spotify state changes in reponse to audio session state changes."""
 import sched
 from typing import Dict
 
 from pycaw.utils import AudioSession
 
-from interlude.spotify import SpotifyState, SpotifyClient
-from interlude.audio_session import (
-    AudioStateCallback,
-    unregister_callbacks,
-    discover_foreground_sessions,
-)
+from interlude.audio_session import (AudioStateCallback,
+                                     discover_foreground_sessions,
+                                     unregister_callbacks)
+from interlude.spotify import SpotifyClient, SpotifyState
 
 sessions: Dict[int, AudioSession] = {}
 scheduler = sched.scheduler()
 
 
 class PauseSpotifyCallback(AudioStateCallback):
+    """Callback to put Spotify playback on hold when audio sessions are active"""
+
     active_session_count = 0
-    spotify_state = 0
     scheduler: sched.scheduler = scheduler
 
     def __init__(self, session: AudioSession) -> None:
