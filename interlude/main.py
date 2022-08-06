@@ -11,11 +11,13 @@ from interlude.audio_session import (
 )
 
 sessions: Dict[int, AudioSession] = {}
+scheduler = sched.scheduler()
 
 
 class PauseSpotifyCallback(AudioStateCallback):
     active_session_count = 0
     spotify_state = 0
+    scheduler: sched.scheduler = scheduler
 
     def __init__(self, session: AudioSession) -> None:
         super().__init__(session)
@@ -25,14 +27,15 @@ class PauseSpotifyCallback(AudioStateCallback):
 
     def on_active(self):
         self.active_session_count += 1
-        if self.active_session_count > 1:
-            return  # there was already some foreground sound, nothing to do
-
-        # First foreground source was just activated
-        # check if we should put the player on hold
         self.client._get_playback()  # Refresh player state in case user paused
-        if self.client.state == SpotifyState.playing:
+
+        if self.client.state in [SpotifyState.warmup, SpotifyState.playing]:
             self.client.hold_playback()
+
+        # Delete all pending warmup tasks from the scheduler
+        for event in self.scheduler.queue:
+            if event.action == self.client.resume_playback:
+                self.scheduler.cancel(event)
 
     def on_inactive(self):
         self.active_session_count -= 1
@@ -52,14 +55,15 @@ class PauseSpotifyCallback(AudioStateCallback):
     def activate_playback(self):
         # Foreground sound ceased, resume playback if it was on hold
         self.client._get_playback()
-        if self.client.state in [SpotifyState.hold, SpotifyState.warmup]:
+        if self.client.state == SpotifyState.hold:
             self.client.warmup()
-            self.client.resume_playback()
+            self.scheduler.enter(2, 10, self.client.resume_playback)
+        else:
+            print(f"Tried to activate playback in state {self.client.state}")
 
 
 if __name__ == "__main__":
     try:
-        scheduler = sched.scheduler()
         scheduler.enter(
             0,
             5,
