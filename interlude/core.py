@@ -11,7 +11,6 @@ from interlude.audio_session import (
 )
 from interlude.spotify import SpotifyClient, SpotifyState
 
-sessions: Dict[int, AudioSession] = {}
 scheduler = sched.scheduler()
 
 
@@ -72,6 +71,7 @@ def manage_sessions_task(scheduler, sessions):
 
 
 if __name__ == "__main__":
+    sessions: Dict[int, AudioSession] = {}
     scheduler.enter(0, 5, manage_sessions_task, (scheduler, sessions))
     try:
         scheduler.run(blocking=True)
