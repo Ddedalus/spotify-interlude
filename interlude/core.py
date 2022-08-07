@@ -1,14 +1,15 @@
 """ Core logic to trigger Spotify state changes in reponse to audio session state changes."""
+import logging
 import sched
-from typing import Dict
+from typing import Dict, List
 
 from pycaw.utils import AudioSession
 
-from interlude.audio_session import (
-    AudioStateCallback,
-    discover_foreground_sessions,
-)
+from interlude.audio_session import (AudioStateCallback,
+                                     discover_foreground_sessions)
 from interlude.spotify import SpotifyClient, SpotifyState
+
+log = logging.getLogger()
 
 
 class PauseSpotifyCallback(AudioStateCallback):
@@ -34,7 +35,7 @@ class PauseSpotifyCallback(AudioStateCallback):
         # Delete all pending warmup tasks from the scheduler
         for event in self.scheduler.queue:
             if event.action == self.client.resume_playback:
-                print("Deleting a warmp event")
+                log.debug("Deleting a warmup event")
                 self.scheduler.cancel(event)
 
     def on_inactive(self):
@@ -59,13 +60,23 @@ class PauseSpotifyCallback(AudioStateCallback):
             self.client.warmup()
             self.scheduler.enter(self.warmup_duration, 10, self.client.resume_playback)
         else:
-            print(f"Tried to activate playback in state {self.client.state}")
+            log.warning(f"Tried to activate playback in state {self.client.state}")
 
 
 def manage_sessions_task(
-    scheduler: sched.scheduler, interval: float, sessions: Dict[int, AudioSession] = {}
+    scheduler: sched.scheduler,
+    interval: float,
+    process_names: List[str],
+    sessions: Dict[int, AudioSession] = {},
 ):
     """Periodic task updating a collection of active audio sessions."""
-    sessions = discover_foreground_sessions(sessions, PauseSpotifyCallback)
-    scheduler.enter(interval, 5, manage_sessions_task, (scheduler, interval, sessions))
+    sessions = discover_foreground_sessions(
+        sessions, PauseSpotifyCallback, process_names
+    )
+    scheduler.enter(
+        interval,
+        5,
+        manage_sessions_task,
+        (scheduler, interval, process_names, sessions),
+    )
     return sessions

@@ -1,10 +1,13 @@
 """ Customise the pycaw AudioSession event callback, logic to keep track of audio sessions"""
+import logging
 import sched
 from typing import Dict, Iterable, List, Type
 
 from comtypes import COMError
 from pycaw.callbacks import AudioSessionEvents
 from pycaw.utils import AudioSession, AudioUtilities
+
+log = logging.getLogger()
 
 
 class AudioStateCallback(AudioSessionEvents):
@@ -19,9 +22,9 @@ class AudioStateCallback(AudioSessionEvents):
         self.process_name: str = session.Process.name()
         self.state: str = self.AudioSessionState[session.State]
         session.register_notification(self)
-        print(f"Registered callback for {self.process_name}")
+        log.info(f"Registered callback for {self.process_name}")
         if kwargs:
-            print(f"Unused named arguments: {kwargs}")
+            log.warning(f"Unused named arguments: {kwargs}")
 
     def on_state_changed(self, new_state, new_state_id):
         """Expose individual state changes as interface functions"""
@@ -32,7 +35,7 @@ class AudioStateCallback(AudioSessionEvents):
         elif new_state == "Expired":
             self.on_expired()
         else:
-            print("Warning: unknown state:", new_state)
+            log.warning("Warning: unknown state:", new_state)
         self.state = new_state
 
     def on_active(self):
@@ -51,13 +54,13 @@ class AudioStateCallback(AudioSessionEvents):
 def unregister_callbacks(sessions: Iterable[AudioSession]):
     for s in sessions:
         s.unregister_notification()
-        print(f"Unregistered callback for {s.Process and s.Process.name()}")
+        log.debug(f"Unregistered callback for {s.Process and s.Process.name()}")
 
 
 def discover_foreground_sessions(
     sessions: Dict[int, AudioSession],
     Callback: Type[AudioStateCallback],
-    foreground_process_names: List[str] = ["chrome.exe", "firefox.exe"],
+    foreground_process_names: List[str],
     **kwargs,
 ) -> Dict[int, AudioSession]:
     """Find all audio sessions of foreground registered apps.
@@ -65,7 +68,7 @@ def discover_foreground_sessions(
     try:
         all_discovered: List[AudioSession] = AudioUtilities.GetAllSessions()
     except COMError:
-        print("No audio output device registered!")
+        log.error("No audio output device registered!")
         return {}
     discovered_sessions = {
         s.ProcessId: s
