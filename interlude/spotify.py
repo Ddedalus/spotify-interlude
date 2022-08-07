@@ -23,10 +23,14 @@ class SpotifyState(str, Enum):
 
 
 class SpotifyClient:
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        client_id: str,
+        secret: str,
+    ) -> None:
         auth_manager = SpotifyOAuth(
-            client_id="b28755671fa94530b587e9b8c30d1951",
-            client_secret="95bb66edd73842cdb2b925bf43eb11a9",
+            client_id=client_id,
+            client_secret=secret,
             redirect_uri="http://localhost:9090",
             scope=["user-modify-playback-state", "user-read-playback-state"],
         )
