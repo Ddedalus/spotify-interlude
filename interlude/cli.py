@@ -20,16 +20,45 @@ PROCESS_NAMES = ["chrome.exe", "firefox.exe", "Telegram.exe"]
 
 @app.command()
 def main(
-    spotify_secret: str = typer.Option(..., envvar="SPOTIFY_SECRET"),
-    spotify_client_id: str = typer.Option(..., envvar="SPOTIFY_CLIENT_ID"),
-    process_names: List[str] = typer.Option(PROCESS_NAMES, "-p", "--process-name"),
-    device_names: List[str] = typer.Option(["SURFACE"], "-d", "--device-name"),
-    session_refresh_interval: float = 5.0,
-    warmup_duration: float = 2.0,
-    shortcut_path: Optional[Path] = None,
-    log_path: Optional[Path] = None,
-    log_level: str = "INFO",
+    spotify_secret: str = typer.Option(
+        ..., envvar="SPOTIFY_SECRET", help="Secret from your Spotify App dashboard."
+    ),
+    spotify_client_id: str = typer.Option(
+        ...,
+        envvar="SPOTIFY_CLIENT_ID",
+        help="Client Id from your Spotify App dashboard.",
+    ),
+    process_names: List[str] = typer.Option(
+        PROCESS_NAMES,
+        "-p",
+        "--process-name",
+        help="Names of the programs which should pause Spotify when palying sound.",
+    ),
+    device_names: List[str] = typer.Option(
+        ["SURFACE"],
+        "-d",
+        "--device-name",
+        help="Name of the Spotify device, in case you have multiple connected simultaneously. This can be used to pause palyback outside of this computer.",
+    ),
+    session_refresh_interval: float = typer.Option(
+        5.0, help="How often to scan for new foreground apps (seconds)"
+    ),
+    warmup_duration: float = typer.Option(
+        2.0, help="Delay between end of foreground sound and playback resume."
+    ),
+    shortcut_path: Optional[Path] = typer.Option(
+        None, help="Path where a shortcut to Interlude should be created."
+    ),
+    log_path: Optional[Path] = typer.Option(
+        None, help="Write logs to this file instead of stdout"
+    ),
+    log_level: str = typer.Option("INFO", help="Minimal level of the logs to display"),
 ):
+    """
+    Monitor the local Spotify client and apps making foreground noise.
+    If --shortcut-path is specified, create a Windows shortcut with the same options instead.
+
+    """
     if shortcut_path is not None:
         typer.echo(f"Creating a shortcut for later use at {shortcut_path}")
         shell = Dispatch("WScript.Shell")
