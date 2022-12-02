@@ -17,14 +17,19 @@ You'll need to obtain a [Development Token](https://developer.spotify.com/) from
 1. Start by [creating an account](https://accounts.spotify.com/en/status).
 2. Head to the [dashboard](https://developer.spotify.com/dashboard/applications) and create an App called Interlude on your account.
 3. Copy the client ID and secret. This package will need them to control your Spotify client.
+4. Click 'Edit Settings' and set callback URL to `http://localhost:9090`. Interlude will start a local server at this address to perform authentication with Spotify web API.
  
-## Run Interlude
-Start Spotify and play some music. Then launch interlude:
+## Run Interlude for the first time
+
 ```powershell
 $Env:SPOTIFY_SECRET=...
 $ENV:SPOTIFY_CLIENT_ID=...
 interlude
 ```
+On the first run, you will be redirected to an authorization page for Spotify at _https://accounts.spotify.com_.
+You need to grant necessary permissions on your Spotify account.
+
+Start Spotify and play some music.
 When you try to play some sounds in Chrome, the music should stop playing.
 
 ## Configure interlude
