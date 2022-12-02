@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "interlude"
+name = "spotify-interlude"
 version = "0.1.0"
 description = "Pause Spotify playback when other apps start making noise"
 authors = ["Hubert Bereś <h.beres@hotmail.com>"]
