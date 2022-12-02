@@ -26,9 +26,14 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-python@v4
-    - name: Build and publish to pypi
+    - name: Install poetry
       run: |-
         pip install poetry
-        poetry config pypi-token.pypi ${{ secrets.PYPI_API_TOKEN }}
+    - name: Build and publish to PyPi
+      env:
+        PYTHON_KEYRING_BACKEND: keyring.backends.null.Keyring
+        POETRY_PYPI_TOKEN_PYPI: ${{ secrets.PYPI_API_TOKEN }}
+      run: |-
+        poetry config pypi-token.pypi 
         poetry build
         poetry publish
