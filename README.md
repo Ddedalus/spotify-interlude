@@ -1,6 +1,5 @@
-# interlude
-Pause Spotify playback when other apps start making noise on Windows.
-Automatically resume playback when the other sound finishes.
+_Pause Spotify playback when other apps start making noise on Windows._
+_Automatically resume playback when the other sound finishes._
 
 This mimics default Android functionality, where background music would stop for
 a duration of a call or alarm and resume afterwards.
@@ -9,14 +8,8 @@ a duration of a call or alarm and resume afterwards.
 
 ## Install
 
-Hopefully one day:
-```
-pip install interlude
-```
-Until then, just git-clone this repo and install dependencies using poetry:
-```
-poetry shell
-poetry install
+```powershell
+pip install spotify-interlude
 ```
 
 ## Set up Spotify
@@ -27,8 +20,9 @@ You'll need to obtain a [Development Token](https://developer.spotify.com/) from
  
 ## Run Interlude
 Start Spotify and play some music. Then launch interlude:
-```
-export SPOTIFY_SECRET=... SPOTIFY_CLIENT_ID=...
+```powershell
+$Env:SPOTIFY_SECRET=...
+$ENV:SPOTIFY_CLIENT_ID=...
 interlude
 ```
 When you try to play some sounds in Chrome, the music should stop playing.
@@ -37,7 +31,7 @@ When you try to play some sounds in Chrome, the music should stop playing.
 
 You can tweak the behaviour of interlude using command line options:
 
-```bash
+```powershell
 interlude --help
 # Usage: interlude [OPTIONS]
 # 
@@ -77,7 +71,7 @@ interlude --help
 
 ## Create shortcut
 To easily start interlude, create a shortcut with your desired settings:
-```bash
+```powershell
 interlude --shortcut-path ~/Desktop/Interlude.lnk # add other options as needed
 ```
 Note: the Spotify secret and client ID will be baked into the shortcut.

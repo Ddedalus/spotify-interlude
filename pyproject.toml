@@ -1,9 +1,11 @@
 [tool.poetry]
 name = "spotify-interlude"
-version = "0.1.0"
+version = "0.1.1"
 description = "Pause Spotify playback when other apps start making noise"
 authors = ["Hubert Bereś <h.beres@hotmail.com>"]
 license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/Ddedalus/spotify-interlude"
 
 [tool.poetry.scripts]
 interlude = "spotify_interlude.cli:app"
