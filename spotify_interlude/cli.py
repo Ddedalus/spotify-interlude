@@ -9,9 +9,9 @@ import typer
 import sys
 
 
-from interlude.audio_session import unregister_callbacks
-from interlude.core import PauseSpotifyCallback, manage_sessions_task
-from interlude.spotify import SpotifyClient
+from spotify_interlude.audio_session import unregister_callbacks
+from spotify_interlude.core import PauseSpotifyCallback, manage_sessions_task
+from spotify_interlude.spotify import SpotifyClient
 
 app = typer.Typer()
 REPO_ROOT = Path(__file__).parent.parent.resolve()

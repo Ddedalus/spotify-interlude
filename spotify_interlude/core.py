@@ -5,8 +5,11 @@ from typing import Dict, List
 
 from pycaw.utils import AudioSession
 
-from interlude.audio_session import AudioStateCallback, discover_foreground_sessions
-from interlude.spotify import SpotifyClient, SpotifyState
+from spotify_interlude.audio_session import (
+    AudioStateCallback,
+    discover_foreground_sessions,
+)
+from spotify_interlude.spotify import SpotifyClient, SpotifyState
 
 
 class PauseSpotifyCallback(AudioStateCallback):

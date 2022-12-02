@@ -6,7 +6,7 @@ authors = ["Hubert Bereś <h.beres@hotmail.com>"]
 license = "MIT"
 
 [tool.poetry.scripts]
-interlude = "interlude.cli:app"
+interlude = "spotify_interlude.cli:app"
 
 [tool.poetry.dependencies]
 python = "^3.8"
