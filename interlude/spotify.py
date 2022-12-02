@@ -6,8 +6,6 @@ from typing import Any, Dict, List, Optional
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-log = logging.getLogger("interlude")
-
 
 class SpotifyState(str, Enum):
     """State of the Spotify player.
@@ -50,16 +48,16 @@ class SpotifyClient:
         try:
             device = self._get_device()
         except:
-            log.info("It seems the device was killed in the meantime")
+            logging.info("It seems the device was killed in the meantime")
             return
         self.sp.pause_playback(device_id=device["id"])
         self.state = SpotifyState.hold
-        log.debug("Playback on hold")
+        logging.info("Playback on hold")
 
     def warmup(self):
         """Start the warmup period"""
         self.state = SpotifyState.warmup
-        log.debug("Warmup...")
+        logging.info("Warmup...")
 
     def resume_playback(self):
         """Resume Spotify playback once foreground audio finishes."""
@@ -69,20 +67,20 @@ class SpotifyClient:
         try:
             device = self._get_device()
         except ValueError:
-            log.warning("No device found that could resume playback")
+            logging.warning("No device found that could resume playback")
             self.state = SpotifyState.off
             return
 
         self.sp.start_playback(device_id=device["id"])
         self.state = SpotifyState.playing
-        log.debug("Resumed playback")
+        logging.info("Resumed playback")
 
     def _get_device(self) -> Dict[str, Any]:
         """Get currently active device or one of the preferred ones by name."""
         try:
             devices = self.sp.devices()["devices"]
         except Exception as e:
-            log.error(e)
+            logging.error(e)
             self.state = SpotifyState.off
             raise ValueError("No suitable device found")
 

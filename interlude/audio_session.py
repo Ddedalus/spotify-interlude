@@ -7,8 +7,6 @@ from comtypes import COMError
 from pycaw.callbacks import AudioSessionEvents
 from pycaw.utils import AudioSession, AudioUtilities
 
-log = logging.getLogger("interlude")
-
 
 class AudioStateCallback(AudioSessionEvents):
     """Audio Session Callback which keeps track of previous state and process name.
@@ -22,9 +20,9 @@ class AudioStateCallback(AudioSessionEvents):
         self.process_name: str = session.Process.name()
         self.state: str = self.AudioSessionState[session.State]
         session.register_notification(self)
-        log.info(f"Registered callback for {self.process_name}")
+        logging.info(f"Registered callback for {self.process_name}")
         if kwargs:
-            log.warning(f"Unused named arguments: {kwargs}")
+            logging.warning(f"Unused named arguments: {kwargs}")
 
     def on_state_changed(self, new_state, new_state_id):
         """Expose individual state changes as interface functions"""
@@ -35,7 +33,7 @@ class AudioStateCallback(AudioSessionEvents):
         elif new_state == "Expired":
             self.on_expired()
         else:
-            log.warning("Warning: unknown state:", new_state)
+            logging.warning("Warning: unknown state:", new_state)
         self.state = new_state
 
     def on_active(self):
@@ -54,7 +52,7 @@ class AudioStateCallback(AudioSessionEvents):
 def unregister_callbacks(sessions: Iterable[AudioSession]):
     for s in sessions:
         s.unregister_notification()
-        log.debug(f"Unregistered callback for {s.Process and s.Process.name()}")
+        logging.info(f"Unregistered callback for {s.Process and s.Process.name()}")
 
 
 def discover_foreground_sessions(
@@ -68,7 +66,7 @@ def discover_foreground_sessions(
     try:
         all_discovered: List[AudioSession] = AudioUtilities.GetAllSessions()
     except COMError:
-        log.error("No audio output device registered!")
+        logging.error("No audio output device registered!")
         return {}
     discovered_sessions = {
         s.ProcessId: s

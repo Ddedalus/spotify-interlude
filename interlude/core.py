@@ -8,8 +8,6 @@ from pycaw.utils import AudioSession
 from interlude.audio_session import AudioStateCallback, discover_foreground_sessions
 from interlude.spotify import SpotifyClient, SpotifyState
 
-log = logging.getLogger("interlude")
-
 
 class PauseSpotifyCallback(AudioStateCallback):
     """Callback to put Spotify playback on hold when audio sessions are active"""
@@ -34,7 +32,7 @@ class PauseSpotifyCallback(AudioStateCallback):
         # Delete all pending warmup tasks from the scheduler
         for event in self.scheduler.queue:
             if event.action == self.client.resume_playback:
-                log.debug("Deleting a warmup event")
+                logging.info("Deleting a warmup event")
                 self.scheduler.cancel(event)
 
     def on_inactive(self):
@@ -59,7 +57,7 @@ class PauseSpotifyCallback(AudioStateCallback):
             self.client.warmup()
             self.scheduler.enter(self.warmup_duration, 10, self.client.resume_playback)
         else:
-            log.warning(f"Tried to activate playback in state {self.client.state}")
+            logging.warning(f"Tried to activate playback in state {self.client.state}")
 
 
 def manage_sessions_task(
