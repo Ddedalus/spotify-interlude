@@ -9,7 +9,11 @@ from interlude.audio_session import unregister_callbacks
 from interlude.core import PauseSpotifyCallback, manage_sessions_task
 from interlude.spotify import SpotifyClient
 
-log = logging.getLogger()
+log = logging.getLogger("interlude")
+log.setLevel(logging.INFO)
+handler = logging.FileHandler("interlude.logs")
+log.addHandler(handler)
+
 app = typer.Typer()
 
 PROCESS_NAMES = ["chrome.exe", "firefox.exe", "Telegram.exe"]

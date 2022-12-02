@@ -6,7 +6,7 @@ from typing import Any, Dict, List, Optional
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
-log = logging.getLogger()
+log = logging.getLogger("interlude")
 
 
 class SpotifyState(str, Enum):

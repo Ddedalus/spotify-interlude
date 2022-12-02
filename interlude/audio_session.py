@@ -7,7 +7,7 @@ from comtypes import COMError
 from pycaw.callbacks import AudioSessionEvents
 from pycaw.utils import AudioSession, AudioUtilities
 
-log = logging.getLogger()
+log = logging.getLogger("interlude")
 
 
 class AudioStateCallback(AudioSessionEvents):
